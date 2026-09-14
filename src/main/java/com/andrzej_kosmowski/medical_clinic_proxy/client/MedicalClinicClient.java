@@ -1,0 +1,26 @@
+package com.andrzej_kosmowski.medical_clinic_proxy.client;
+
+import com.andrzej_kosmowski.medical_clinic_proxy.dto.VisitDto;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@FeignClient(name = "medical-clinic-client", url = "${app.medical-clinic.url}")
+public interface MedicalClinicClient {
+    @GetMapping("/visits/patient/{patientId}")
+    List<VisitDto> getPatientVisits(@PathVariable Long patientId);
+
+    @PatchMapping("/visits/{visitId}/patient/{patientId}")
+    VisitDto assignPatient(@PathVariable Long visitId, @PathVariable Long patientId);
+
+    @GetMapping("/visits/doctor/{doctorId}/available")
+    List<VisitDto> getAvailableDoctorVisits(@PathVariable Long doctorId);
+
+    @GetMapping("/visits/available/search")
+    List<VisitDto> getAvailableSearchVisits(@RequestParam String specialization, @RequestParam LocalDate date);
+}
