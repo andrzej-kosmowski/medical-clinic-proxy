@@ -6,6 +6,7 @@ import com.andrzej_kosmowski.medical_clinic_proxy.exception.MedicalClinicService
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -53,5 +54,19 @@ public class MedicalClinicProxyExceptionHandler {
                 exception.getMessage()
         );
         return ResponseEntity.internalServerError().body(error);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorMessageDto> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException exception
+    ) {
+        log.error("MissingServletRequestParameterException occurred: {}", exception.getMessage(), exception);
+        ErrorMessageDto error = new ErrorMessageDto(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                "Required request parameter '%s' is missing".formatted(exception.getParameterName())
+        );
+        return ResponseEntity.badRequest().body(error);
     }
 }
