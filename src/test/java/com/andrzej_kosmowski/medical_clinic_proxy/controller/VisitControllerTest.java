@@ -131,6 +131,15 @@ class VisitControllerTest {
     }
 
     @Test
+    void getAvailableSearchVisits_DateMissing_Response400() throws Exception {
+        // when & then
+        mockMvc.perform(get("/visits/available/search")
+                        .param("specialization", "pediatra"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Required request parameter 'date' is missing"));
+    }
+
+    @Test
     void getVisitsBySpecializationAndTimeRange_Response200() throws Exception {
         // given
         LocalDateTime from = LocalDateTime.of(2030, 1, 1, 0, 0);
