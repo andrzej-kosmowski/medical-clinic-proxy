@@ -1,15 +1,14 @@
 package com.andrzej_kosmowski.medical_clinic_proxy.client;
 
 import com.andrzej_kosmowski.medical_clinic_proxy.config.FeignConfiguration;
+import com.andrzej_kosmowski.medical_clinic_proxy.dto.DoctorDto;
 import com.andrzej_kosmowski.medical_clinic_proxy.dto.VisitDto;
 import com.andrzej_kosmowski.medical_clinic_proxy.fallback.MedicalClinicFallbackFactory;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @FeignClient(
@@ -30,4 +29,23 @@ public interface MedicalClinicClient {
 
     @GetMapping("/visits/available/search")
     List<VisitDto> getAvailableSearchVisits(@RequestParam String specialization, @RequestParam LocalDate date);
+
+    @GetMapping("/visits/search")
+    List<VisitDto> getVisitsBySpecializationAndTimeRange(
+            @RequestParam String specialization, @RequestParam LocalDateTime from, @RequestParam LocalDateTime to);
+
+    @GetMapping("/visits/available/range")
+    List<VisitDto> getAvailableVisits(
+            @RequestParam(required = false) String specialization,
+            @RequestParam LocalDateTime from,
+            @RequestParam LocalDateTime to);
+
+    @GetMapping("/visits/doctor/{doctorId}")
+    List<VisitDto> getDoctorVisits(@PathVariable Long doctorId);
+
+    @DeleteMapping("/visits/{visitId}")
+    void deleteVisit(@PathVariable Long visitId);
+
+    @GetMapping("/doctors/specialization/{specialization}")
+    List<DoctorDto> getDoctorsBySpecialization(@PathVariable String specialization);
 }

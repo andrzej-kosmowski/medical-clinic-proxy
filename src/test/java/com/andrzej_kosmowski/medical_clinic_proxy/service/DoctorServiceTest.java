@@ -2,7 +2,6 @@ package com.andrzej_kosmowski.medical_clinic_proxy.service;
 
 import com.andrzej_kosmowski.medical_clinic_proxy.client.MedicalClinicClient;
 import com.andrzej_kosmowski.medical_clinic_proxy.dto.DoctorDto;
-import kotlin.collections.EmptyList;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
