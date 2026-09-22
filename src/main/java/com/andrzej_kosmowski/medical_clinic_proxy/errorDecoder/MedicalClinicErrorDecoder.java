@@ -21,9 +21,13 @@ public class MedicalClinicErrorDecoder implements ErrorDecoder {
     @Override
     public Exception decode(String methodKey, Response response) {
         int status = response.status();
-        log.error("Medical Clinic call failed: method={}, status={}, url={}",
-                methodKey, status, response.request().url());
-
+        if (status >= 500) {
+            log.error("Medical Clinic call failed: method={}, status={}, url={}",
+                    methodKey, status, response.request().url());
+        } else {
+            log.error("Medical Clinic call returned client error: method={}, status={}, url={}",
+                    methodKey, status, response.request().url());
+        }
         return switch (status) {
             case 503 -> createRetryableException(response);
             default -> createMedicalClinicException(methodKey, response);
@@ -31,6 +35,8 @@ public class MedicalClinicErrorDecoder implements ErrorDecoder {
     }
 
     private Exception createRetryableException(Response response) {
+        log.error("Medical Clinic returned 503, will retry: method={}, url={}",
+                response.request().httpMethod(), response.request().url());
         return new RetryableException(
                 response.status(),
                 "Medical Clinic service is temporarily unavailable",
@@ -50,12 +56,13 @@ public class MedicalClinicErrorDecoder implements ErrorDecoder {
 
     private ErrorMessageDto readError(Response response) {
         if (response.body() == null) {
+            log.error("Medical Clinic response body is empty, status={}", response.status());
             return null;
         }
         try {
             return objectMapper.readValue(response.body().asInputStream(), ErrorMessageDto.class);
         } catch (IOException exception) {
-            log.error("Failed to read Medical Clinic response", exception);
+            log.error("Failed to read Medical Clinic response body, status={}", response.status(), exception);
             return null;
         }
     }

@@ -3,12 +3,14 @@ package com.andrzej_kosmowski.medical_clinic_proxy.service;
 import com.andrzej_kosmowski.medical_clinic_proxy.client.MedicalClinicClient;
 import com.andrzej_kosmowski.medical_clinic_proxy.dto.VisitDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class VisitService {
@@ -19,6 +21,7 @@ public class VisitService {
     }
 
     public VisitDto assignPatient(Long visitId, Long patientId) {
+        log.info("Assigning patientId={} to visitId={}", patientId, visitId);
         return medicalClinicClient.assignPatient(visitId, patientId);
     }
 
@@ -44,6 +47,8 @@ public class VisitService {
     }
 
     public void deleteVisit(Long visitId) {
+        log.info("Deleting visitId={}", visitId);
         medicalClinicClient.deleteVisit(visitId);
+        log.info("Visit deleted successfully: visitId={}", visitId);
     }
 }
