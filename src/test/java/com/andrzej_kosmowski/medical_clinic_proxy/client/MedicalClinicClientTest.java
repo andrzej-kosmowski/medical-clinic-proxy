@@ -13,6 +13,8 @@ import org.wiremock.spring.EnableWireMock;
 import org.wiremock.spring.InjectWireMock;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -83,22 +85,74 @@ public class MedicalClinicClientTest {
     }
 
     @Test
-    void getAvailableSearchVisits_Response200_ReturnsAvailableSearchVisits() {
+    void searchVisits_WithDateAndSpecialization_ReturnsVisits() {
         // given
-        wireMockServer.stubFor(get(urlPathEqualTo("/visits/available/search"))
+        wireMockServer.stubFor(get(urlPathEqualTo("/visits/search"))
+                .withQueryParam("specialization", equalTo("pediatra"))
+                .withQueryParam("date", equalTo("1.01.2030"))
+                .withQueryParam("availableOnly", equalTo("true"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("available-search-visits.json")));
         // when
-        List<VisitDto> result = medicalClinicClient.getAvailableSearchVisits("pediatra",
-                LocalDate.of(2030, 1, 1));
+        List<VisitDto> result = medicalClinicClient.searchVisits("pediatra",
+                LocalDate.of(2030, 1, 1), null, null, true);
         // then
         Assertions.assertAll(
                 () -> assertEquals(1, result.size()),
                 () -> assertEquals(3L, result.get(0).doctorId()),
                 () -> assertNull(result.get(0).patientId())
         );
+    }
+
+    @Test
+    void searchVisits_WithTimeRange_ReturnsMatchingVisits() {
+        // given
+        LocalDateTime from = LocalDateTime.of(2030, 1, 1, 10, 30);
+        LocalDateTime to = LocalDateTime.of(2030, 1, 2, 10, 30);
+
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern("d.MM.yyyy, HH:mm");
+
+        wireMockServer.stubFor(get(urlPathEqualTo("/visits/search"))
+                .withQueryParam("specialization", equalTo("kardiolog"))
+                .withQueryParam("from", equalTo(from.format(formatter)))
+                .withQueryParam("to", equalTo(to.format(formatter)))
+                .withQueryParam("availableOnly", equalTo("false"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("available-search-visits.json")));
+
+        // when
+        List<VisitDto> result = medicalClinicClient.searchVisits(
+                "kardiolog",
+                null,
+                from,
+                to,
+                false
+        );
+
+        // then
+        Assertions.assertAll(
+                () -> assertEquals(1, result.size()),
+                () -> assertEquals(3L, result.get(0).doctorId())
+        );
+    }
+
+    @Test
+    void searchVisits_NoFilters_ReturnsAllVisits() {
+        // given
+        wireMockServer.stubFor(get(urlPathEqualTo("/visits/search"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("available-search-visits.json")));
+        // when
+        List<VisitDto> result = medicalClinicClient.searchVisits(null, null, null, null, false);
+        // then
+        assertEquals(1, result.size());
     }
 
     @Test
