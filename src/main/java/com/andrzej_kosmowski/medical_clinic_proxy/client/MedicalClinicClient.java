@@ -27,18 +27,13 @@ public interface MedicalClinicClient {
     @GetMapping("/visits/doctor/{doctorId}/available")
     List<VisitDto> getAvailableDoctorVisits(@PathVariable Long doctorId);
 
-    @GetMapping("/visits/available/search")
-    List<VisitDto> getAvailableSearchVisits(@RequestParam String specialization, @RequestParam LocalDate date);
-
     @GetMapping("/visits/search")
-    List<VisitDto> getVisitsBySpecializationAndTimeRange(
-            @RequestParam String specialization, @RequestParam LocalDateTime from, @RequestParam LocalDateTime to);
-
-    @GetMapping("/visits/available/range")
-    List<VisitDto> getAvailableVisits(
-            @RequestParam(required = false) String specialization,
-            @RequestParam LocalDateTime from,
-            @RequestParam LocalDateTime to);
+    List<VisitDto> searchVisits(
+            @RequestParam(value = "specialization",required = false) String specialization,
+            @RequestParam(required = false) LocalDate date,
+            @RequestParam(value = "from", required = false) LocalDateTime from,
+            @RequestParam(value = "to", required = false) LocalDateTime to,
+            @RequestParam(required = false, defaultValue = "false") boolean availableOnly);
 
     @GetMapping("/visits/doctor/{doctorId}")
     List<VisitDto> getDoctorVisits(@PathVariable Long doctorId);

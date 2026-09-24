@@ -2,6 +2,7 @@ package com.andrzej_kosmowski.medical_clinic_proxy.controller;
 
 import com.andrzej_kosmowski.medical_clinic_proxy.dto.ErrorMessageDto;
 import com.andrzej_kosmowski.medical_clinic_proxy.dto.VisitDto;
+import com.andrzej_kosmowski.medical_clinic_proxy.dto.VisitSearchCriteria;
 import com.andrzej_kosmowski.medical_clinic_proxy.service.VisitService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -87,36 +88,15 @@ public class VisitController {
             @ApiResponse(responseCode = "503", description = "Medical Clinic service is unavailable",
                     content = @Content(schema = @Schema(implementation = ErrorMessageDto.class)))
     })
-    @GetMapping("/available/search")
-    public List<VisitDto> getAvailableSearchVisits(@RequestParam String specialization, @RequestParam LocalDate date) {
-        return visitService.getAvailableVisitsBySpecializationAndDate(specialization, date);
-    }
-
-    @Operation(summary = "Search visits by specialization and time range",
-            description = "Returns all visits for a given specialization within the specified time range")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Visits successfully retrieved"),
-            @ApiResponse(responseCode = "503", description = "Medical Clinic service is unavailable",
-                    content = @Content(schema = @Schema(implementation = ErrorMessageDto.class)))
-    })
     @GetMapping("/search")
-    public List<VisitDto> getVisitsBySpecializationAndTimeRange(
-            @RequestParam String specialization, @RequestParam LocalDateTime from, @RequestParam LocalDateTime to) {
-        return visitService.getVisitsBySpecializationAndTimeRange(specialization, from, to);
-    }
-
-    @Operation(summary = "Search available visits by time range",
-            description = "Returns all available visits within the specified time range. Specialization is optional.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Available visits successfully retrieved"),
-            @ApiResponse(responseCode = "503", description = "Medical Clinic service is unavailable",
-                    content = @Content(schema = @Schema(implementation = ErrorMessageDto.class)))
-    })
-    @GetMapping("/available/range")
-    public List<VisitDto> getAvailableVisits(
-            @RequestParam(required = false) String specialization, @RequestParam LocalDateTime from,
-            @RequestParam LocalDateTime to) {
-        return visitService.getAvailableVisits(specialization, from, to);
+    public List<VisitDto> searchVisits(
+            @RequestParam(required = false) String specialization,
+            @RequestParam(required = false) LocalDate date,
+            @RequestParam(required = false) LocalDateTime from,
+            @RequestParam(required = false) LocalDateTime to,
+            @RequestParam(required = false, defaultValue = "false") boolean availableOnly) {
+        VisitSearchCriteria criteria = new VisitSearchCriteria(specialization, date, from, to, availableOnly);
+        return visitService.searchVisits(criteria);
     }
 
     @Operation(summary = "Delete a visit",

@@ -35,18 +35,9 @@ public class MedicalClinicFallbackFactory implements FallbackFactory<MedicalClin
             public List<VisitDto> getAvailableDoctorVisits(Long doctorId) {
                 throw new MedicalClinicServiceUnavailableException();
             }
-            @Override
-            public List<VisitDto> getAvailableSearchVisits(String specialization, LocalDate date) {
-                throw new MedicalClinicServiceUnavailableException();
-            }
 
             @Override
-            public List<VisitDto> getVisitsBySpecializationAndTimeRange(String specialization, LocalDateTime from, LocalDateTime to) {
-                throw new MedicalClinicServiceUnavailableException();
-            }
-
-            @Override
-            public List<VisitDto> getAvailableVisits(String specialization, LocalDateTime from, LocalDateTime to) {
+            public List<VisitDto> searchVisits(String specialization, LocalDate date, LocalDateTime from, LocalDateTime to, boolean availableOnly) {
                 throw new MedicalClinicServiceUnavailableException();
             }
 
