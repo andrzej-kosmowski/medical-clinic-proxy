@@ -1,0 +1,21 @@
+version: '3'
+services:
+  medical-clinic-proxy:
+    container_name: medical-clinic-proxy
+    image: medical-clinic-proxy
+    build:
+      context: .
+    environment:
+      - APP_MEDICAL-CLINIC_URL=http://medical-clinic:8080
+      - LOGSTASH_HOST=logstash
+    ports:
+      - "8084:8081"
+    networks:
+      - elk-network
+      - medical-network
+
+networks:
+  elk-network:
+    external: true
+  medical-network:
+    external: true
